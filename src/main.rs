@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+mod emulator;
+
 fn window_conf() -> Conf {
     Conf {
         window_title: "CHIP8".to_owned(),
