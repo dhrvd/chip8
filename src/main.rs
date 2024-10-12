@@ -1,3 +1,4 @@
+use display::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use emulator::Emulator;
 use macroquad::prelude::*;
 
@@ -6,8 +7,6 @@ mod emulator;
 mod instructions;
 mod memory;
 mod stack;
-
-use crate::display::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
 fn window_conf() -> Conf {
     Conf {
@@ -21,8 +20,8 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut emulator = Emulator::new(64);
-    emulator.memory.load(include_bytes!("../IBM logo.ch8"));
+    let mut emulator = Emulator::new(60);
+    emulator.memory.load(include_bytes!("../roms/IBM logo.ch8"));
 
     loop {
         emulator.cycle();

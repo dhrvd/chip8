@@ -1,5 +1,3 @@
-use macroquad::rand;
-
 use crate::{display::Display, memory::Memory, stack::Stack};
 
 pub const START_ADDR: u16 = 0x200;
