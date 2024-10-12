@@ -15,6 +15,8 @@ impl Emulator {
         match (i, x, y, n) {
             (0x00, 0x00, 0x0E, 0x00) => self.cls(), // 00E0: clear screen
             (0x01, _, _, _) => self.jump(nnn),      // 1NNN: jump to adress nnn
+            (0x00, 0x00, 0x0E, 0x0E) => self.ret(), // 00EE: return from subroutine
+            (0x02, _, _, _) => self.call(nnn),      // 2NNN: call subroutine
             (0x06, _, _, _) => self.set_v(x, nn),   // 6XNN: set register vx to nn
             (0x07, _, _, _) => self.add(x, nn),     // 7XNN: add nn to register vx
             (0x0A, _, _, _) => self.set_i(nnn),     // ANNN: set register i to nnn
@@ -30,6 +32,17 @@ impl Emulator {
 
     // Set pc to nnn, causing the program to jump to that memory location.
     fn jump(&mut self, nnn: u16) {
+        self.pc = nnn;
+    }
+
+    // Set pc to last address popped from the stack.
+    fn ret(&mut self) {
+        self.pc = self.stack.pop();
+    }
+
+    // Push current pc to stack, and jump to nnn.
+    fn call(&mut self, nnn: u16) {
+        self.stack.push(self.pc);
         self.pc = nnn;
     }
 
