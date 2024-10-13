@@ -115,6 +115,53 @@ impl Emulator {
                     }
                 }
             }
+
+            // EX9E and EXA1: skip if key
+            (0x0E, _, 0x09, 0x0E) => {
+                if self.keypad[self.v[x] as usize] {
+                    self.pc += 2;
+                }
+            }
+            (0x0E, _, 0x0A, 0x01) => {
+                if !self.keypad[self.v[x] as usize] {
+                    self.pc += 2;
+                }
+            }
+
+            // FX07, FX15 and FX18: timers
+            (0x0F, _, 0x00, 0x07) => self.v[x] = self.delay_timer,
+            (0x0F, _, 0x01, 0x05) => self.delay_timer = self.v[x],
+            (0x0F, _, 0x01, 0x08) => self.sound_timer = self.v[x],
+
+            // FX1E: add to vx to i
+            (0x0F, _, 0x01, 0x0E) => {
+                let (sum, carry) = self.i.overflowing_add(self.v[x] as u16);
+                self.i = sum;
+                self.v[0x0F] = carry as u8;
+            }
+
+            (0x0F, _, 0x02, 0x09) => self.i = self.v[x] as u16 * 5, // FX29: font character
+            // FX33: binary-coded decimal conversion
+            (0x0F, _, 0x03, 0x03) => {
+                let vx = self.v[x] as f32;
+
+                self.memory[self.i] = (vx / 100.0).floor() as u8;
+                self.memory[self.i + 1] = ((vx / 10.0) % 10.0).floor() as u8;
+                self.memory[self.i + 2] = (vx % 10.0) as u8;
+            }
+
+            // FX55 and FX65: store and load memory
+            (0x0F, _, 0x05, 0x05) => {
+                for i in 0..=x {
+                    self.memory[self.i as usize + i] = self.v[i];
+                }
+            }
+            (0x0F, _, 0x06, 0x05) => {
+                for i in 0..=x {
+                    self.v[i] = self.memory[self.i as usize + i];
+                }
+            }
+
             _ => unimplemented!("Unimplemented instruction: 0x{:04X}", instruction),
         }
     }
