@@ -3,7 +3,8 @@ use crate::{display::Display, memory::Memory, stack::Stack};
 pub const START_ADDR: u16 = 0x200;
 
 pub struct Emulator {
-    frequency: u32,
+    frequency: f32,
+    accumulator: f32,
 
     pub memory: Memory,
     pub display: Display,
@@ -18,9 +19,10 @@ pub struct Emulator {
 }
 
 impl Emulator {
-    pub fn new(frequency: u32) -> Self {
+    pub fn new(frequency: f32) -> Self {
         Self {
             frequency,
+            accumulator: 0.0,
             memory: Memory::new(),
             display: Display::new(),
             pc: START_ADDR,
@@ -70,11 +72,20 @@ impl Emulator {
         self.tick_timers();
 
         let instruction = self.fetch();
-        println!("0x{:04X}", instruction);
+        // println!("0x{:04X}", instruction);
         self.execute(instruction);
     }
 
-    pub fn keypress(&mut self, index: usize, pressed: bool) {
+    pub fn update(&mut self, delta: f32) {
+        self.accumulator += delta;
+
+        while self.accumulator >= 1.0 / self.frequency {
+            self.cycle();
+            self.accumulator -= 1.0 / self.frequency;
+        }
+    }
+
+    fn keypress(&mut self, index: usize, pressed: bool) {
         self.keypad[index] = pressed;
     }
 }
