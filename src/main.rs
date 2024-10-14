@@ -1,12 +1,12 @@
 use std::time::Duration;
 
 use display::{HEIGHT, WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH};
-use emulator::Emulator;
+use interpreter::Interpreter;
 
 use sdl2::{event::Event, keyboard::Keycode};
 
 mod display;
-mod emulator;
+mod interpreter;
 mod instructions;
 mod keypad;
 mod memory;
@@ -35,8 +35,8 @@ pub fn main() {
 
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut emulator = Emulator::new(8);
-    emulator.memory.load(include_bytes!("../roms/BRIX"));
+    let mut interpreter = Interpreter::new(8);
+    interpreter.memory.load(include_bytes!("../roms/BRIX"));
 
     'running: loop {
         match event_pump.poll_event() {
@@ -49,19 +49,19 @@ pub fn main() {
                 scancode: Some(scancode),
                 ..
             }) => {
-                emulator.keypad.update(scancode, true);
+                interpreter.keypad.update(scancode, true);
             }
             Some(Event::KeyUp {
                 scancode: Some(scancode),
                 ..
             }) => {
-                emulator.keypad.update(scancode, false);
+                interpreter.keypad.update(scancode, false);
             }
             _ => {}
         }
 
-        emulator.update();
-        emulator.display.draw(&mut canvas);
+        interpreter.update();
+        interpreter.display.draw(&mut canvas);
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000_u32 / 60));
     }

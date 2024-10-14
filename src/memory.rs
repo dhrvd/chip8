@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut};
 
-use crate::emulator::START_ADDR;
+use crate::interpreter::START_ADDR;
 
 const FONT: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

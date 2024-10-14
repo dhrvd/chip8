@@ -3,7 +3,7 @@ use rand::rngs::ThreadRng;
 
 pub const START_ADDR: u16 = 0x200;
 
-pub struct Emulator {
+pub struct Interpreter {
     cycles_per_frame: u16,
     pub thread_range: ThreadRng,
 
@@ -19,7 +19,7 @@ pub struct Emulator {
     pub keypad: Keypad,
 }
 
-impl Emulator {
+impl Interpreter {
     pub fn new(cycles_per_frame: u16) -> Self {
         Self {
             cycles_per_frame,

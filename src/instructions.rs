@@ -1,11 +1,10 @@
-use rand::{self, Rng};
-
+use rand::Rng;
 use crate::{
     display::{HEIGHT, WIDTH},
-    emulator::Emulator,
+    interpreter::Interpreter,
 };
 
-impl Emulator {
+impl Interpreter {
     pub fn execute(&mut self, instruction: u16) {
         let i = ((instruction & 0xF000) >> 12) as u8;
         let x = ((instruction & 0x0F00) >> 8) as usize;
