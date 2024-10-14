@@ -1,24 +1,5 @@
-use macroquad::input::{is_key_down, KeyCode};
-use std::ops::Index;
-
-const KEY_MAP: [(KeyCode, u8); 16] = [
-    (KeyCode::X, 0x00),
-    (KeyCode::Key1, 0x01),
-    (KeyCode::Key2, 0x02),
-    (KeyCode::Key3, 0x03),
-    (KeyCode::Q, 0x04),
-    (KeyCode::W, 0x05),
-    (KeyCode::E, 0x06),
-    (KeyCode::A, 0x07),
-    (KeyCode::S, 0x08),
-    (KeyCode::D, 0x09),
-    (KeyCode::Z, 0x0A),
-    (KeyCode::C, 0x0B),
-    (KeyCode::Key4, 0x0C),
-    (KeyCode::R, 0x0D),
-    (KeyCode::F, 0x0E),
-    (KeyCode::V, 0x0F),
-];
+use sdl2::keyboard::Scancode;
+use std::{ops::Index, ops::IndexMut};
 
 pub struct Keypad {
     keys: [bool; 16],
@@ -37,10 +18,28 @@ impl Keypad {
         }
     }
 
-    pub fn update(&mut self) {
-        for (key_code, i) in KEY_MAP {
-            self.keys[i as usize] = is_key_down(key_code);
-        }
+    pub fn update(&mut self, scancode: Scancode, down: bool) {
+        let key = match scancode {
+            Scancode::X => 0x00,
+            Scancode::Num1 => 0x01,
+            Scancode::Num2 => 0x02,
+            Scancode::Num3 => 0x03,
+            Scancode::Q => 0x04,
+            Scancode::W => 0x05,
+            Scancode::E => 0x06,
+            Scancode::A => 0x07,
+            Scancode::S => 0x08,
+            Scancode::D => 0x09,
+            Scancode::Z => 0x0A,
+            Scancode::C => 0x0B,
+            Scancode::Num4 => 0x0C,
+            Scancode::R => 0x0D,
+            Scancode::F => 0x0E,
+            Scancode::V => 0x0F,
+            _ => return,
+        };
+
+        self[key] = down;
     }
 
     pub fn wait_for_key(&self) -> Option<u8> {
@@ -53,5 +52,11 @@ impl Index<u8> for Keypad {
 
     fn index(&self, index: u8) -> &Self::Output {
         &self.keys[index as usize]
+    }
+}
+
+impl IndexMut<u8> for Keypad {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        &mut self.keys[index as usize]
     }
 }

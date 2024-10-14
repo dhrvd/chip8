@@ -1,6 +1,9 @@
-use display::{WINDOW_HEIGHT, WINDOW_WIDTH};
+use std::time::Duration;
+
+use display::{HEIGHT, WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH};
 use emulator::Emulator;
-use macroquad::prelude::*;
+
+use sdl2::{event::Event, keyboard::Keycode};
 
 mod display;
 mod emulator;
@@ -9,25 +12,57 @@ mod keypad;
 mod memory;
 mod stack;
 
-fn window_conf() -> Conf {
-    Conf {
-        window_title: "CHIP8".to_owned(),
-        window_height: WINDOW_HEIGHT,
-        window_width: WINDOW_WIDTH,
-        window_resizable: false,
-        ..Default::default()
-    }
-}
+pub fn main() {
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
 
-#[macroquad::main(window_conf)]
-async fn main() {
-    let mut emulator = Emulator::new(500);
-    emulator.memory.load(include_bytes!("../roms/6-keypad.ch8"));
+    let window = video_subsystem
+        .window("CHIP-8", WINDOW_WIDTH, WINDOW_HEIGHT)
+        .position_centered()
+        .build()
+        .unwrap();
 
-    loop {
+    let mut canvas = window
+        .into_canvas()
+        .present_vsync()
+        .accelerated()
+        .build()
+        .unwrap();
+
+    canvas
+        .set_logical_size(WIDTH as u32, HEIGHT as u32)
+        .unwrap();
+
+    let mut event_pump = sdl_context.event_pump().unwrap();
+
+    let mut emulator = Emulator::new(8);
+    emulator.memory.load(include_bytes!("../roms/BRIX"));
+
+    'running: loop {
+        match event_pump.poll_event() {
+            Some(Event::Quit { .. })
+            | Some(Event::KeyDown {
+                keycode: Some(Keycode::ESCAPE),
+                ..
+            }) => break 'running,
+            Some(Event::KeyDown {
+                scancode: Some(scancode),
+                ..
+            }) => {
+                emulator.keypad.update(scancode, true);
+            }
+            Some(Event::KeyUp {
+                scancode: Some(scancode),
+                ..
+            }) => {
+                emulator.keypad.update(scancode, false);
+            }
+            _ => {}
+        }
+
         emulator.update();
-        emulator.display.draw();
+        emulator.display.draw(&mut canvas);
 
-        next_frame().await
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000_u32 / 60));
     }
 }

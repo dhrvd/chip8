@@ -1,14 +1,17 @@
-use macroquad::prelude::*;
+use sdl2::{pixels::Color, rect::Point, render::WindowCanvas};
 
 pub const WIDTH: u8 = 64;
 pub const HEIGHT: u8 = 32;
 
-pub const SCALE: u16 = 10;
+const SCALE: u16 = 10;
 
-pub const WINDOW_WIDTH: i32 = WIDTH as i32 * SCALE as i32;
-pub const WINDOW_HEIGHT: i32 = HEIGHT as i32 * SCALE as i32;
+pub const WINDOW_WIDTH: u32 = WIDTH as u32 * SCALE as u32;
+pub const WINDOW_HEIGHT: u32 = HEIGHT as u32 * SCALE as u32;
 
-pub const SIZE: usize = WIDTH as usize * HEIGHT as usize;
+const SIZE: usize = WIDTH as usize * HEIGHT as usize;
+
+const BACKGROUND: Color = Color::RGB(30, 32, 30);
+const FOREGROUND: Color = Color::RGB(236, 223, 204);
 
 pub struct Display {
     frame_buffer: [bool; SIZE],
@@ -37,19 +40,19 @@ impl Display {
         self.frame_buffer[Self::index(x, y)] = value
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, canvas: &mut WindowCanvas) {
+        canvas.set_draw_color(BACKGROUND);
+        canvas.clear();
+        canvas.set_draw_color(FOREGROUND);
+
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
                 if self.get(x, y) {
-                    draw_rectangle(
-                        x as f32 * SCALE as f32,
-                        y as f32 * SCALE as f32,
-                        SCALE as f32,
-                        SCALE as f32,
-                        WHITE,
-                    );
+                    canvas.draw_point(Point::new(x as i32, y as i32)).unwrap();
                 }
             }
         }
+
+        canvas.present();
     }
 }

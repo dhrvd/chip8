@@ -1,9 +1,11 @@
 use crate::{display::Display, keypad::Keypad, memory::Memory, stack::Stack};
+use rand::rngs::ThreadRng;
 
 pub const START_ADDR: u16 = 0x200;
 
 pub struct Emulator {
     cycles_per_frame: u16,
+    pub thread_range: ThreadRng,
 
     pub memory: Memory,
     pub display: Display,
@@ -21,6 +23,7 @@ impl Emulator {
     pub fn new(cycles_per_frame: u16) -> Self {
         Self {
             cycles_per_frame,
+            thread_range: rand::thread_rng(),
             memory: Memory::new(),
             display: Display::new(),
             pc: START_ADDR,
@@ -79,8 +82,6 @@ impl Emulator {
     }
 
     pub fn update(&mut self) {
-        self.keypad.update();
-
         for _ in 0..self.cycles_per_frame {
             self.cycle();
         }
