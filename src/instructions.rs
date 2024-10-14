@@ -118,12 +118,12 @@ impl Emulator {
 
             // EX9E and EXA1: skip if key
             (0x0E, _, 0x09, 0x0E) => {
-                if self.keypad[self.v[x] as usize] {
+                if self.keypad[self.v[x]] {
                     self.pc += 2;
                 }
             }
             (0x0E, _, 0x0A, 0x01) => {
-                if !self.keypad[self.v[x] as usize] {
+                if !self.keypad[self.v[x]] {
                     self.pc += 2;
                 }
             }
@@ -139,6 +139,16 @@ impl Emulator {
                 self.i = sum;
                 self.v[0x0F] = carry as u8;
             }
+
+            // FX0A: wait for key press and store to vx
+            (0x0F, _, 0x00, 0x0A) => match self.keypad.wait_for_key() {
+                Some(key) => {
+                    self.keypad.down = key;
+                    self.keypad.waiting = true;
+                    self.keypad.register = x;
+                }
+                None => self.pc -= 2,
+            },
 
             (0x0F, _, 0x02, 0x09) => self.i = self.v[x] as u16 * 5, // FX29: font character
             // FX33: binary-coded decimal conversion

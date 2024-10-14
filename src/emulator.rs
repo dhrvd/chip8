@@ -1,10 +1,9 @@
-use crate::{display::Display, memory::Memory, stack::Stack};
+use crate::{display::Display, keypad::Keypad, memory::Memory, stack::Stack};
 
 pub const START_ADDR: u16 = 0x200;
 
 pub struct Emulator {
-    frequency: f32,
-    accumulator: f32,
+    cycles_per_frame: u16,
 
     pub memory: Memory,
     pub display: Display,
@@ -15,14 +14,13 @@ pub struct Emulator {
     pub sound_timer: u8,
     pub v: [u8; 16], // variable registers
 
-    pub keypad: [bool; 16],
+    pub keypad: Keypad,
 }
 
 impl Emulator {
-    pub fn new(frequency: f32) -> Self {
+    pub fn new(cycles_per_frame: u16) -> Self {
         Self {
-            frequency,
-            accumulator: 0.0,
+            cycles_per_frame,
             memory: Memory::new(),
             display: Display::new(),
             pc: START_ADDR,
@@ -31,7 +29,7 @@ impl Emulator {
             delay_timer: 0,
             sound_timer: 0,
             v: [0; 16],
-            keypad: [false; 16],
+            keypad: Keypad::new(),
         }
     }
 
@@ -43,7 +41,7 @@ impl Emulator {
         self.stack = Stack::new();
         self.delay_timer = 0;
         self.sound_timer = 0;
-        self.keypad = [false; 16];
+        self.keypad = Keypad::new();
     }
 
     // fetch the instruction from memory at current program counter
@@ -69,23 +67,24 @@ impl Emulator {
     }
 
     pub fn cycle(&mut self) {
-        self.tick_timers();
-
-        let instruction = self.fetch();
-        // println!("0x{:04X}", instruction);
-        self.execute(instruction);
-    }
-
-    pub fn update(&mut self, delta: f32) {
-        self.accumulator += delta;
-
-        while self.accumulator >= 1.0 / self.frequency {
-            self.cycle();
-            self.accumulator -= 1.0 / self.frequency;
+        if self.keypad.waiting {
+            if !self.keypad[self.keypad.down] {
+                self.keypad.waiting = false;
+                self.v[self.keypad.register] = self.keypad.down;
+            }
+        } else {
+            let instruction = self.fetch();
+            self.execute(instruction);
         }
     }
 
-    fn keypress(&mut self, index: usize, pressed: bool) {
-        self.keypad[index] = pressed;
+    pub fn update(&mut self) {
+        self.keypad.update();
+
+        for _ in 0..self.cycles_per_frame {
+            self.cycle();
+        }
+
+        self.tick_timers();
     }
 }

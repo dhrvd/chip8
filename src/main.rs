@@ -5,6 +5,7 @@ use macroquad::prelude::*;
 mod display;
 mod emulator;
 mod instructions;
+mod keypad;
 mod memory;
 mod stack;
 
@@ -20,11 +21,11 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut emulator = Emulator::new(500.0);
-    emulator.memory.load(include_bytes!("../roms/IBM logo.ch8"));
+    let mut emulator = Emulator::new(500);
+    emulator.memory.load(include_bytes!("../roms/6-keypad.ch8"));
 
     loop {
-        emulator.update(get_frame_time());
+        emulator.update();
         emulator.display.draw();
 
         next_frame().await
