@@ -5,7 +5,7 @@ pub const START_ADDR: u16 = 0x200;
 
 pub struct Interpreter {
     cycles_per_frame: u16,
-    pub thread_range: ThreadRng,
+    pub thread_rng: ThreadRng,
 
     pub memory: Memory,
     pub display: Display,
@@ -23,7 +23,7 @@ impl Interpreter {
     pub fn new(cycles_per_frame: u16) -> Self {
         Self {
             cycles_per_frame,
-            thread_range: rand::thread_rng(),
+            thread_rng: rand::thread_rng(),
             memory: Memory::new(),
             display: Display::new(),
             pc: START_ADDR,

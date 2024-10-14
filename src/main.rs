@@ -1,13 +1,13 @@
 use std::time::Duration;
 
-use display::{HEIGHT, WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH};
+use display::{HEIGHT, WIDTH};
 use interpreter::Interpreter;
 
 use sdl2::{event::Event, keyboard::Keycode};
 
 mod display;
-mod interpreter;
 mod instructions;
+mod interpreter;
 mod keypad;
 mod memory;
 mod stack;
@@ -17,7 +17,7 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("CHIP-8", WINDOW_WIDTH, WINDOW_HEIGHT)
+        .window("CHIP-8", WIDTH as u32 * 10, HEIGHT as u32 * 10)
         .position_centered()
         .build()
         .unwrap();

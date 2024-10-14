@@ -3,11 +3,6 @@ use sdl2::{pixels::Color, rect::Point, render::WindowCanvas};
 pub const WIDTH: u8 = 64;
 pub const HEIGHT: u8 = 32;
 
-const SCALE: u16 = 10;
-
-pub const WINDOW_WIDTH: u32 = WIDTH as u32 * SCALE as u32;
-pub const WINDOW_HEIGHT: u32 = HEIGHT as u32 * SCALE as u32;
-
 const SIZE: usize = WIDTH as usize * HEIGHT as usize;
 
 const BACKGROUND: Color = Color::RGB(30, 32, 30);

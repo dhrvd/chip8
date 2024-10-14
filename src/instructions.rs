@@ -1,8 +1,8 @@
-use rand::Rng;
 use crate::{
     display::{HEIGHT, WIDTH},
     interpreter::Interpreter,
 };
+use rand::Rng;
 
 impl Interpreter {
     pub fn execute(&mut self, instruction: u16) {
@@ -87,7 +87,7 @@ impl Interpreter {
 
             (0x0A, _, _, _) => self.i = nnn, // ANNN: set index register to nnn
             (0x0B, _, _, _) => self.pc = self.v[0] as u16 + nnn, // BNNN: jump to v0 + nnn
-            (0x0C, _, _, _) => self.v[x] = self.thread_range.gen_range(0..=255) & nn, // CXNN: random
+            (0x0C, _, _, _) => self.v[x] = self.thread_rng.gen_range(0..=255) & nn, // CXNN: random
 
             // DXYN: draw an n pixels tall and 8 pixels wide sprite at (vx, vy).
             (0x0D, _, _, _) => {
